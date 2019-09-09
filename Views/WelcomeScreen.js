@@ -37,7 +37,7 @@ class WelcomeScreen extends React.Component {
         this.state.scaleIndex = new Animated.Value(0);
         Animated.timing(this.state.scaleIndex, {
             toValue: 1,
-            duration: 550
+            duration: 350
         }).start();
     }
 

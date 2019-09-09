@@ -7,6 +7,7 @@ import Text from '../Components/Text'
 class LoginScreen extends React.Component {
 
     render() {
+        const { navigate } = this.props.navigation; 
         return (
             <>
             <View style={styles.imageContainer}>
@@ -19,11 +20,11 @@ class LoginScreen extends React.Component {
                 <TextInput style={styles.input} placeholder="Username" />
                 <TextInput style={styles.input} placeholder="Senha" textContentType='password' secureTextEntry={true} />
 
-                <TouchableOpacity style={styles.loginButton}>
+                <TouchableOpacity style={styles.loginButton} onPress={() => {navigate('Home', {})}}>
                     <Text style={styles.loginButtonText}>ENTRAR</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.leadText}>Não possui uma conta? <Text style={styles.leadTextLink}>Registrar !</Text></Text>
+                <Text style={styles.leadText}>Não possui uma conta? <Text style={styles.leadTextLink}>Registrar</Text></Text>
 
             </KeyboardAvoidingView>
             
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#CCC',
         height: 55,
-        fontSize: 22
+        fontSize: 20
     },
     loginButton: {
         backgroundColor: '#455eea',
@@ -82,7 +83,8 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     leadTextLink: {
-        color: '#455eea'
+        color: '#455eea',
+        textDecorationLine: 'underline'
     }
 });
 
