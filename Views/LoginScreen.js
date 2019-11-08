@@ -1,13 +1,37 @@
 import React from 'react';
 
-import { StyleSheet, View, Image, TextInput, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
 
 import Text from '../Components/Text'
+import ApiService from '../services/api.service';
 
 class LoginScreen extends React.Component {
 
-    render() {
+    state = {
+        credentials: {
+            email: '',
+            password: ''
+        },
+        isLoading: false
+    };
+
+    _authenticate() {
         const { navigate } = this.props.navigation; 
+        this.setState({isLoading: true});
+        setTimeout(() => {
+            ApiService.post('User/Business/Authenticate', this.state.credentials).then(response => {
+                console.log(response);
+                navigate('Home', {});
+            }).catch(error => {
+                if (error.response && error.response.status == 401)
+                    Alert.alert('Ops...', 'E-mail ou senha incorreto(s)');
+            }).then(() => {
+                this.setState({isLoading: false});
+            })
+        }, 1200);
+    }
+
+    render() {
         return (
             <>
             <View style={styles.imageContainer}>
@@ -17,11 +41,16 @@ class LoginScreen extends React.Component {
             <KeyboardAvoidingView style={styles.container} behavior='padding' enabled>
                 <Text style={styles.title}>Fazer login</Text>
                 
-                <TextInput style={styles.input} placeholder="Username" />
-                <TextInput style={styles.input} placeholder="Senha" textContentType='password' secureTextEntry={true} />
+                <TextInput style={styles.input} placeholder="E-mail" value={this.state.credentials.email} onChangeText={(text) => this.setState({credentials: {...this.state.credentials, email: text}})} />
+                <TextInput style={styles.input} placeholder="Senha" textContentType='password' secureTextEntry={true} value={this.state.credentials.password} onChangeText={(text) => this.setState({credentials: {...this.state.credentials, password: text}})} />
 
-                <TouchableOpacity style={styles.loginButton} onPress={() => {navigate('Home', {})}}>
-                    <Text style={styles.loginButtonText}>ENTRAR</Text>
+                <TouchableOpacity style={styles.loginButton} onPress={() => this._authenticate()}>
+                    {
+                        !this.state.isLoading ?
+                        <Text style={styles.loginButtonText}>ENTRAR</Text>
+                        :
+                        <ActivityIndicator size="large" color="#FFF" />
+                    }
                 </TouchableOpacity>
 
                 <Text style={styles.leadText}>Não possui uma conta? <Text style={styles.leadTextLink}>Registrar</Text></Text>
