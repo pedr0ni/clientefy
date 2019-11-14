@@ -1,9 +1,11 @@
 const axios = require('axios');
 
+import { AsyncStorage } from 'react-native';
+
 const ApiService = {
 
     //endpoint: "http://18.228.33.23:8090/api/",
-    endpoint: process.env.NODE_ENV === 'development' ? "http://localhost:5000/api/" : "http://api.guarany.nacaointerativa.com.br/api/",
+    endpoint: __DEV__ ? "http://localhost:5000/api/" : "http://clientefy.software/api/",
 
     get(url, data = {}, headers = {}) {
         return axios.get(this.endpoint + url, data, headers);
@@ -17,26 +19,25 @@ const ApiService = {
         return axios.put(this.endpoint + url, data, headers);
     },
 
-    getLogged() {
-        if (localStorage.user == undefined)
-            return null;
-        return this.parseJwt(localStorage.user);
+    async getLogged() {
+        let userData = await AsyncStorage.getItem('@UserStorage:loggedUser');
+        return JSON.parse(userData);
     },
 
-    setLogged(user) {
-        localStorage.user = user;
-        axios.defaults.headers = {
+    async setLogged(user) {
+        await AsyncStorage.setItem('@UserStorage:loggedUser', JSON.stringify(user));
+        /*axios.defaults.headers = {
             'UserId': ApiService.getLogged() == null ? null : ApiService.getLogged().UserId.toString(),
-        }
-        EventBus.$emit('login');
+        }*/
     },
 
-    logout() {
-        delete localStorage.user;
+    async logout() {
+        await AsyncStorage.removeItem('@UserStorage:loggedUser');
     },
 
-    isLogged() {
-        return localStorage.user != undefined;
+    async isLogged() {
+        let userData = await this.getLogged();
+        return userData != null;
     },
 
     parseJwt (token) {

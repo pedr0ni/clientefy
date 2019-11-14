@@ -1,16 +1,41 @@
 import React from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-import { StyleSheet, View, Image, TextInput, Dimensions } from 'react-native';
+import { StyleSheet, View, Image, 
+    TextInput, Dimensions, RefreshControl,
+    Alert } from 'react-native';
 import Text from '../Components/Text'
 import { Ionicons } from '@expo/vector-icons';
+import ApiService from '../services/api.service';
 
 class HomeScreen extends React.Component {
+
+    state = {
+        isRefreshing: false,
+        businessList: []
+    };
+
+    componentWillMount() {
+        this.loadBusinessList();
+    }
+
+    loadBusinessList() {
+        this.setState({isRefreshing: true});
+        ApiService.get('Store').then(response => {
+            this.setState({businessList: response.data});
+            console.log(this.state.businessList);
+        }).catch(error => {
+            Alert.alert('Ops...', 'Ocorreu um erro ao atualizar a lista de negócios.');
+        }).then(() => {
+            this.setState({isRefreshing: false});
+        });
+    }
+
     render() {
         return (
             <>
-            <ScrollView style={styles.container}>
+            <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Restaurantes</Text>
+                    <Text style={styles.title}>Restaurantes <Ionicons name="md-arrow-dropdown" size={24} color="#3f4855" /></Text>
                     <Image style={{width: 52, height: 52}} source={require('../assets/img/user.png')} />
                 </View>
                 <View style={styles.inputBuscaHolder}>
@@ -18,40 +43,43 @@ class HomeScreen extends React.Component {
                     <Ionicons style={styles.inputBuscaIcon} name="md-arrow-round-forward" size={24} color="#808080" />
                 </View>
                 
-                <View style={styles.cardHolder}>
-                    <View style={styles.cardHeader}>
-                        <View style={styles.cardPoint}>
-                            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#5a68dc'}}>2</Text>
-                            <Text style={{color: '#5a68dc'}}>Pontos</Text>
-                        </View>
-                        <View style={styles.cardHeaderTitle}>
-                            <Text style={{fontSize: 22, color: '#3a3862', fontWeight: 'bold'}}>17 a vonts</Text>
-                            <Text style={{color: '#3a3862'}}>a 2km</Text>
-                        </View>
-                    </View>
-                    <View style={styles.cardFotosHolder}>
-                        <Image style={styles.cardFoto} source={require('../assets/img/rest-01.png')} />
-                        <Image style={styles.cardFoto} source={require('../assets/img/rest-02.png')} />
-                        <View> 
-                            <Image style={styles.cardFoto} source={require('../assets/img/rest-03.png')} />
-                        </View>
-                    </View>
-                    <View style={styles.cardCupomHolder}>
-                        <View style={styles.cardCupom}>
-                            <Text>-20%</Text>
-                        </View>
-                    </View>
-                    <View style={styles.cardFooter}>
-                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                            <View style={{marginRight: 10, backgroundColor: '#5663fb', borderRadius: 12, width: 28, height: 28, display:'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                <Ionicons name="md-add" size={24} color="#FFF" style={{flex: 1}}></Ionicons>
-                            </View>
-                            <Text style={{color: '#5663fb'}}>Adicionar aos favoritos</Text>
-                        </View>
-                        <Ionicons name="md-arrow-forward" size={24} color="#5663fb"></Ionicons>
-                    </View>
-                </View>
-            </ScrollView>
+                <ScrollView refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={() => this.loadBusinessList()} />}>
+                    {
+                        this.state.businessList.map((entry, key) => {
+                            return (
+                                <View style={styles.cardHolder}>
+                                    <View style={styles.cardHeader}>
+                                        <View style={styles.cardPoint}>
+                                            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#5a68dc'}}>2</Text>
+                                            <Text style={{color: '#5a68dc'}}>Pontos</Text>
+                                        </View>
+                                        <View style={styles.cardHeaderTitle}>
+                                            <Text style={{fontSize: 22, color: '#3a3862', fontWeight: 'bold'}}>{entry.name}</Text>
+                                            <Text style={{color: '#3a3862'}}>a 2km</Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.cardFotosHolder}>
+                                        <Image style={styles.cardFoto} source={require('../assets/img/rest-01.png')} />
+                                        <Image style={styles.cardFoto} source={require('../assets/img/rest-02.png')} />
+                                        <View> 
+                                            <Image style={styles.cardFoto} source={require('../assets/img/rest-03.png')} />
+                                        </View>
+                                    </View>
+                                    <View style={styles.cardFooter}>
+                                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                                            <View style={{marginRight: 10, backgroundColor: '#5663fb', borderRadius: 12, width: 28, height: 28, display:'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                                <Ionicons name="md-add" size={24} color="#FFF" style={{flex: 1}}></Ionicons>
+                                            </View>
+                                            <Text style={{color: '#5663fb'}}>Adicionar aos favoritos</Text>
+                                        </View>
+                                        <Ionicons name="md-arrow-forward" size={24} color="#5663fb"></Ionicons>
+                                    </View>
+                                </View>
+                            )
+                        })
+                    }
+                </ScrollView>
+            </View>
             </>
         );
     }
@@ -155,7 +183,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        marginTop: 10
     }
 })
 

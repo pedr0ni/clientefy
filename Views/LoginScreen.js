@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { StyleSheet, View, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, View, Image, 
+    TextInput, TouchableOpacity, KeyboardAvoidingView, 
+    ActivityIndicator, Alert } from 'react-native';
 
 import Text from '../Components/Text'
 import ApiService from '../services/api.service';
@@ -15,16 +17,25 @@ class LoginScreen extends React.Component {
         isLoading: false
     };
 
+    async componentWillMount() {
+        console.log(await ApiService.getLogged());
+        const { navigate } = this.props.navigation;
+        if (await ApiService.isLogged())
+            navigate('Home', {});
+    }
+
     _authenticate() {
         const { navigate } = this.props.navigation; 
         this.setState({isLoading: true});
         setTimeout(() => {
             ApiService.post('User/Business/Authenticate', this.state.credentials).then(response => {
-                console.log(response);
+                ApiService.setLogged(response.data);
                 navigate('Home', {});
             }).catch(error => {
                 if (error.response && error.response.status == 401)
                     Alert.alert('Ops...', 'E-mail ou senha incorreto(s)');
+                else
+                    Alert.alert('Ops...', 'Ocorreu um erro desconhecido ao realizar login.');
             }).then(() => {
                 this.setState({isLoading: false});
             })
