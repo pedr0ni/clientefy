@@ -32,6 +32,7 @@ class LoginScreen extends React.Component {
                 ApiService.setLogged(response.data);
                 navigate('Home', {});
             }).catch(error => {
+                console.error(error);
                 if (error.response && error.response.status == 401)
                     Alert.alert('Ops...', 'E-mail ou senha incorreto(s)');
                 else

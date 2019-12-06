@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
     },
     container: {
         paddingTop: 60,
-        paddingLeft: 15,
-        paddingRight: 15,
+        paddingLeft: 5,
+        paddingRight: 5,
         flex: 1
     },
     header: {

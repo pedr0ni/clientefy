@@ -5,7 +5,7 @@ import { AsyncStorage } from 'react-native';
 const ApiService = {
 
     //endpoint: "http://18.228.33.23:8090/api/",
-    endpoint: __DEV__ ? "http://localhost:5000/api/" : "http://clientefy.software/api/",
+    endpoint: __DEV__ ? "http://192.168.0.5:5000/api/" : "http://clientefy.software/api/",
 
     get(url, data = {}, headers = {}) {
         return axios.get(this.endpoint + url, data, headers);
