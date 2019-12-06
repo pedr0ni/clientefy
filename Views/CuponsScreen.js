@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, TouchableHighlight, TouchableOpacity } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { StyleSheet, View, Image, 
     TextInput, Dimensions, RefreshControl,
     Alert } from 'react-native';
@@ -7,7 +7,7 @@ import Text from '../Components/Text'
 import { Ionicons } from '@expo/vector-icons';
 import ApiService from '../services/api.service';
 
-class HomeScreen extends React.Component {
+class CuponsScreen extends React.Component {
 
     state = {
         isRefreshing: false,
@@ -21,7 +21,15 @@ class HomeScreen extends React.Component {
     loadBusinessList() {
         this.setState({isRefreshing: true});
         ApiService.get('Store').then(response => {
-            this.setState({businessList: response.data});
+            let stores = response.data;
+            for (let i = 0; i < stores.length; i++) {
+                stores[i].code.map(entry => {
+                    entry.storeName = stores[i].name;
+                    entry.votos = 0;
+                    return entry;
+                });
+                this.state.businessList.push(...stores[i].code);
+            }
             console.log(this.state.businessList);
         }).catch(error => {
             Alert.alert('Ops...', 'Ocorreu um erro ao atualizar a lista de negócios.');
@@ -30,10 +38,10 @@ class HomeScreen extends React.Component {
         });
     }
 
-    async _exit() {
-        await ApiService.logout();
-        const { navigate } = this.props.navigation;
-        navigate('Welcome', {});
+    _click(entry) {
+        entry.votos ++;
+        console.log(entry);
+        this.setState({businessList: this.state.businessList});
     }
 
     render() {
@@ -41,47 +49,25 @@ class HomeScreen extends React.Component {
             <>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Restaurantes <Ionicons name="md-arrow-dropdown" size={24} color="#3f4855" /></Text>
-                    <TouchableOpacity onPress={() => {this._exit()}}>
-                        <Image style={{width: 52, height: 52}} source={require('../assets/img/user.png')} />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.inputBuscaHolder}>
-                    <TextInput style={styles.inputBusca} placeholder="Buscar por restaurantes, cupons ..." />
-                    <Ionicons style={styles.inputBuscaIcon} name="md-arrow-round-forward" size={24} color="#808080" />
+                    <Text style={styles.title}>Cupons</Text>
+                    <Image style={{width: 52, height: 52}} source={require('../assets/img/user.png')} />
                 </View>
                 
                 <ScrollView refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={() => this.loadBusinessList()} />}>
                     {
                         this.state.businessList.map((entry, key) => {
                             return (
-                                <View key={key} style={styles.cardHolder}>
-                                    <View style={styles.cardHeader}>
+                                <View style={styles.cardHolder}>
+                                    <TouchableOpacity style={styles.cardHeader} onPress={() => {this._click(entry)}}>
                                         <View style={styles.cardPoint}>
-                                            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#5a68dc'}}>2</Text>
-                                            <Text style={{color: '#5a68dc'}}>Pontos</Text>
+                                            <Text style={{fontSize: 18, fontWeight: 'bold', color: '#5a68dc'}}>{entry.votos}</Text>
+                                            <Text style={{color: '#5a68dc'}}>Votos</Text>
                                         </View>
                                         <View style={styles.cardHeaderTitle}>
-                                            <Text style={{fontSize: 22, color: '#3a3862', fontWeight: 'bold'}}>{entry.name}</Text>
-                                            <Text style={{color: '#3a3862'}}>a 2km</Text>
+                                            <Text style={{fontSize: 22, color: '#3a3862', fontWeight: 'bold'}}>{entry.key}</Text>
+                                            <Text style={{color: '#3a3862'}}>{entry.storeName}</Text>
                                         </View>
-                                    </View>
-                                    <View style={styles.cardFotosHolder}>
-                                        <Image style={styles.cardFoto} source={require('../assets/img/rest-01.png')} />
-                                        <Image style={styles.cardFoto} source={require('../assets/img/rest-02.png')} />
-                                        <View> 
-                                            <Image style={styles.cardFoto} source={require('../assets/img/rest-03.png')} />
-                                        </View>
-                                    </View>
-                                    <View style={styles.cardFooter}>
-                                        <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                                            <View style={{marginRight: 10, backgroundColor: '#5663fb', borderRadius: 12, width: 28, height: 28, display:'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                                <Ionicons name="md-add" size={24} color="#FFF" style={{flex: 1}}></Ionicons>
-                                            </View>
-                                            <Text style={{color: '#5663fb'}}>Adicionar aos favoritos</Text>
-                                        </View>
-                                        <Ionicons name="md-arrow-forward" size={24} color="#5663fb"></Ionicons>
-                                    </View>
+                                    </TouchableOpacity>
                                 </View>
                             )
                         })
@@ -196,4 +182,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default HomeScreen;
+export default CuponsScreen;

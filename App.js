@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import WelcomeScreen from './Views/WelcomeScreen';
 import LoginScreen from './Views/LoginScreen';
 import HomeScreen from './Views/HomeScreen';
-import FavoritesScreen from './Views/FavoritesScreen';
+import CuponsScreen from './Views/CuponsScreen';
 
 const defaultBarOptions = {
   labelStyle: {
@@ -28,11 +28,11 @@ const TabNav = createBottomTabNavigator({
     },
     tabBarOptions: defaultBarOptions 
   },
-  Favorites: {
-    screen: FavoritesScreen,
+  Cupons: {
+    screen: CuponsScreen,
     navigationOptions: {
       tabBarIcon: ({ tintColor }) => (
-        <Ionicons name={Platform.OS === 'ios' ? "ios-heart" : 'md-heart'} size={24} color={tintColor} />
+        <Ionicons name={Platform.OS === 'ios' ? "ios-gift" : 'md-gift'} size={24} color={tintColor} />
       ),
     },
     tabBarOptions: defaultBarOptions 

@@ -5,6 +5,7 @@ import { StyleSheet, View, Image, Button, Dimensions, TouchableOpacity, Animated
 import Text from '../Components/Text';
 
 import GestureRecognizer from 'react-native-swipe-gestures';
+import ApiService from '../services/api.service';
 
 class WelcomeScreen extends React.Component {
 
@@ -60,7 +61,11 @@ class WelcomeScreen extends React.Component {
         navigate('Login', {});
     }
 
-    componentWillMount() {
+    async componentWillMount() {
+        if (await ApiService.isLogged()) {
+            const { navigate } = this.props.navigation;
+            navigate('Home', {});
+        }
         this.setState({page: this.state.pages[0]})
     }
 
